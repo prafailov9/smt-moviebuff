@@ -1,0 +1,1 @@
+insert into smt.movies values(1, 'LOLW', '2:23:00', 'Cool film', 9.3, 'Drama', '1994-10-14');
