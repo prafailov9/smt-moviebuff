@@ -16,7 +16,7 @@ public abstract class AbstractGenericDao<T> implements GenericDao<T> {
     protected final static Logger LOGGER = Logger.getLogger(AbstractGenericDao.class.getCanonicalName());
 
     private final static String INSERT_QUERY = "insert into %s values (%s)";
-    private final static String INSERT_WITH_FK_QUERY = "insert into %s values (%s, (select id from %s where id = %s));";
+//    private final static String INSERT_WITH_FK_QUERY = "insert into %s values (%s, (select id from %s where id = %s));";
     private final static String DELETE_QUERY = "delete from %s where id=?";
     private final static String LOAD_ONE_QUERY = "select * from %s where id=?";
     private final static String LOAD_ALL_QUERY = "select * from %s";
@@ -49,7 +49,7 @@ public abstract class AbstractGenericDao<T> implements GenericDao<T> {
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) entity = getDatabaseResults(resultSet);
-            if(Objects.isNull(entity)) throw new NoRecordFoundException();
+            if (Objects.isNull(entity)) throw new NoRecordFoundException();
 
             closeDatabaseResources(resultSet, preparedStatement);
             return entity;
@@ -79,10 +79,9 @@ public abstract class AbstractGenericDao<T> implements GenericDao<T> {
             LOGGER.log(Level.SEVERE, "Could not load all records from " + tableName + "!", ex);
         } finally {
             closeDatabaseResources(resultSet, preparedStatement);
-            return entities;
         }
+        return entities;
     }
-
 
 
     @Override
@@ -103,11 +102,10 @@ public abstract class AbstractGenericDao<T> implements GenericDao<T> {
             }
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Could not delete record with id=" + entityId + "from " + tableName + "!", ex);
-            success = false;
         } finally {
             closeDatabaseResources(null, preparedStatement);
-            return success;
         }
+        return success;
     }
 
     @Override
@@ -122,11 +120,10 @@ public abstract class AbstractGenericDao<T> implements GenericDao<T> {
             success = true;
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Could not delete record with id=" + id + "from " + tableName + "!", ex);
-            success = false;
         } finally {
             closeDatabaseResources(null, preparedStatement);
-            return success;
         }
+        return success;
     }
 
     @Override
@@ -143,17 +140,17 @@ public abstract class AbstractGenericDao<T> implements GenericDao<T> {
 
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Could not update a record in " + tableName + "!", ex);
-            success = false;
         } finally {
             closeDatabaseResources(null, preparedStatement);
-            return success;
         }
+        return success;
     }
 
     /**
      * Will build a customized query with each foreign key selected
-     * @param entity
-     * @return
+     *
+     * @param entity - the entity
+     * @return query
      */
     protected abstract String buildInsertWithReferencesQuery(final T entity);
 
@@ -175,8 +172,8 @@ public abstract class AbstractGenericDao<T> implements GenericDao<T> {
 
     private T executeSave(T entity) {
         String query = String.format(INSERT_QUERY, tableName, entity);
-        T savedEntity = runInsertQuery(entity, query, connection);
-        return savedEntity;
+        return runInsertQuery(entity, query, connection);
+
     }
 
     private T executeSaveWithReferences(final T entity) {
@@ -196,8 +193,8 @@ public abstract class AbstractGenericDao<T> implements GenericDao<T> {
             LOGGER.log(Level.SEVERE, null, ex);
         } finally {
             closeDatabaseResources(keys, insertStatement);
-            return entity;
         }
+        return entity;
     }
 
     private T runInsertQuery(T entity, String query, Connection conn) {
@@ -218,16 +215,16 @@ public abstract class AbstractGenericDao<T> implements GenericDao<T> {
             throw new CannotPersistEntityException();
         } finally {
             closeDatabaseResources(keys, insertStatement);
-            return entity;
         }
+        return entity;
     }
 
     /**
      * Method to close the db resources once used. If not closed, these objects might potentially create memory leaks
      * and other unwanted behavior.
      *
-     * @param rs
-     * @param stm
+     * @param rs  - result set
+     * @param stm - statement
      */
     protected void closeDatabaseResources(final ResultSet rs, final Statement stm) {
         try {
@@ -243,6 +240,7 @@ public abstract class AbstractGenericDao<T> implements GenericDao<T> {
             LOGGER.log(Level.SEVERE, "Could not close Statement in " + tableName + "!", ex);
         }
     }
+
 
     //    /**
 //     * Query for inserting a row of data in a specific table with a foreign key, that references a row in another table;

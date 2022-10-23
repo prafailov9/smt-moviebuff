@@ -2,11 +2,9 @@ package org.ntr.persistence.daos.movie;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.ntr.domainmodel.models.movie.MovieGenre;
 import org.ntr.persistence.coredb.AbstractGenericDaoTest;
-import org.ntr.persistence.daos.screening.DefaultScreeningDao;
 import org.ntr.persistence.daos.theater.DefaultTheaterDao;
 import org.ntr.persistence.entities.ScreeningEntity;
 import org.ntr.persistence.entities.TheaterEntity;
@@ -18,8 +16,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicReference;
 
 class DefaultMovieDaoTest extends AbstractGenericDaoTest<MovieEntity> {
 
@@ -46,7 +42,7 @@ class DefaultMovieDaoTest extends AbstractGenericDaoTest<MovieEntity> {
         movieEntity.setReleaseDate(Timestamp.valueOf(LocalDateTime.now()));
 
         ScreeningEntity screeningEntity = createScreening();
-        movieEntity.setScreenings(Arrays.asList(screeningEntity));
+        movieEntity.setScreenings(List.of(screeningEntity));
 
         MovieEntity savedDto = movieDao.save(movieEntity);
 
@@ -60,7 +56,7 @@ class DefaultMovieDaoTest extends AbstractGenericDaoTest<MovieEntity> {
         MovieEntity dto = movieDao.loadById(getRandomId());
         Assertions.assertNotNull(dto);
         Assertions.assertNotNull(dto.getId());
-        Assertions.assertTrue(dto.getId().longValue() >= 1);
+        Assertions.assertTrue(dto.getId() >= 1);
     }
 
     @Test
@@ -90,7 +86,7 @@ class DefaultMovieDaoTest extends AbstractGenericDaoTest<MovieEntity> {
         Assertions.assertThrows(NoRecordFoundException.class, () -> movieDao.loadById(id)); // has to throw na exception if no record was found
     }
 
-//    @Test
+    //    @Test
     public void updateMovieDtoTest() {
         MovieEntity dto = getRandomMovieRecord();
         Long id = dto.getId();
@@ -108,27 +104,6 @@ class DefaultMovieDaoTest extends AbstractGenericDaoTest<MovieEntity> {
         Assertions.assertEquals(dto.getRating(), updatedDto.getRating(), 0.01);
     }
 
-    //    @Test
-    public void asyncSaveTest() {
-        Long id = 1L;
-        AtomicReference<MovieEntity> dto = null;
-        Thread deleteThread = new Thread(() -> movieDao.deleteById(id));
-        Thread readThread = new Thread(() -> dto.set(movieDao.loadById(id)));
-
-        deleteThread.start();
-        readThread.start();
-        try {
-            deleteThread.join();
-            readThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        List<MovieEntity> dtos = getRecords();
-        System.out.println(dtos);
-        Assertions.assertNotNull(dto.get());
-
-    }
-
     @Override
     protected List<MovieEntity> getRecords() {
         return movieDao.loadAll();
@@ -141,7 +116,7 @@ class DefaultMovieDaoTest extends AbstractGenericDaoTest<MovieEntity> {
 
     private ScreeningEntity createScreening() {
 
-        ScreeningEntity screeningEntity  = new ScreeningEntity();
+        ScreeningEntity screeningEntity = new ScreeningEntity();
         screeningEntity.setExternalId(UUID.randomUUID().toString());
         screeningEntity.setStartTime(Timestamp.valueOf(LocalDateTime.now()));
         screeningEntity.setEndTime(Timestamp.valueOf(LocalDateTime.now().plusHours(2)));
@@ -157,5 +132,10 @@ class DefaultMovieDaoTest extends AbstractGenericDaoTest<MovieEntity> {
     private MovieEntity getRandomMovieRecord() {
         return getRecords().get(new Random().nextInt(getRecords().size()));
     }
+
+
+
+
+
 
 }
